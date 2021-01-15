@@ -230,7 +230,8 @@ function hestia_before_single_post_content_func()
 {
 	global $wpdb;
 	$post_meta = get_post_meta(get_the_ID());
-	$quiz_id = isset($post_meta['quiz_id'][0]) ? $post_meta['quiz_id'][0] : '';
+	$quiz_id   = isset($post_meta['quiz_id'][0]) ? $post_meta['quiz_id'][0] : '';
+
 	if ($quiz_id) {
 		$quiz_settings = $wpdb->get_col($wpdb->prepare("SELECT quiz_settings FROM th_mlw_quizzes WHERE quiz_id =  %d ", $quiz_id));
 		$quiz_options = unserialize($quiz_settings[0]);
