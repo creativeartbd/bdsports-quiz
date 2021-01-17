@@ -239,16 +239,18 @@ function hestia_before_single_post_content_func()
 		$quiz_options = unserialize($quiz_options['quiz_options']);
 		$scheduled_time_start = $quiz_options['scheduled_time_start'];
 		$scheduled_time_end = $quiz_options['scheduled_time_end'];
-		$scheduled_time_end = date('M d, Y H:i:s', strtotime($scheduled_time_end));
+		$scheduled_time_end_str = date('M d, Y H:i:s', strtotime($scheduled_time_end));
 		wp_localize_script(
 			'ds-quiz-counter',
 			'ds',
 			array(
 				'ajaxurl' => admin_url('admin-ajax.php'),
-				'scheduled_time_end' => $scheduled_time_end,
+				'scheduled_time_end' => $scheduled_time_end_str,
 			)
 		);
-		echo "<div class='quiz-time-wrapper'><h6><span id='quiz-counter'></span></h6></div>";
+		if (!empty($scheduled_time_end)) {
+			echo "<div class='quiz-time-wrapper'><h6><span id='quiz-counter'></span></h6></div>";
+		}
 	}
 }
 
