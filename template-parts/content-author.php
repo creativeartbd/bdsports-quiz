@@ -61,6 +61,7 @@ $wrap_class     = apply_filters('hestia_filter_single_post_content_classes', 'co
                 echo "<td><b>Quiz Name</b></td>";
                 echo "<td><b>Score</b></td>";
                 echo "<td><b>Time Taken</b></td>";
+                echo "<td><b>Played On</b></td>";
                 echo "</tr>";
 
                 $count = 0;
@@ -105,6 +106,7 @@ $wrap_class     = apply_filters('hestia_filter_single_post_content_classes', 'co
                     echo "<td>{$result->quiz_name}</td>";
                     echo "<td>{$final_score}</td>";
                     echo "<td>{$actual_hour}h {$actual_minutes}m {$actual_seconds}</td>";
+                    echo "<td>{$result->time_taken}</td>";
                     echo "</tr>";
                 }
                 echo "</table>";
