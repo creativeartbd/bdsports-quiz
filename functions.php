@@ -268,13 +268,6 @@ function add_register_link($display)
 	return $display;
 }
 
-add_action('show_user_profile', 'show_user_profile_func');
-function show_user_profile_func()
-{
-?>
-	<h2>Play Quiz</h2>
-<?php
-}
 // Remove color option from user profile page
 if (is_admin()) {
 	if (current_user_can('subscriber')) {
@@ -346,76 +339,76 @@ function dashboard_all_quiz_widget($post, $callback_args)
 
 function dashboard_widget_function($post, $callback_args)
 {
-	if (current_user_can('subscriber')) {
-		global $wpdb;
-		$table = $wpdb->base_prefix . 'mlw_results';
-		$user_id = get_current_user_id();
-		$quiz_results = $wpdb->get_results("SELECT * FROM {$table} WHERE user = $user_id AND deleted = 0 ORDER BY result_id DESC ", OBJECT);
+	//if (current_user_can('subscriber')) {
+	global $wpdb;
+	$table = $wpdb->base_prefix . 'mlw_results';
+	$user_id = get_current_user_id();
+	$quiz_results = $wpdb->get_results("SELECT * FROM {$table} WHERE user = $user_id AND deleted = 0 ORDER BY result_id DESC ", OBJECT);
 
-		if ($quiz_results) {
-			echo "<table class='widefat'>";
-			echo "<thead>";
-			echo "<tr>";
-			echo "<th><b>Sl.</b></th>";
-			echo "<th><b>Quiz Name</b></th>";
-			echo "<th><b>Score</b></th>";
-			echo "<th><b>Time Taken</b></th>";
-			echo "<th><b>Played On</b></th>";
-			echo "</tr>";
-			echo "</thead>";
-			echo "<tbody>";
+	if ($quiz_results) {
+		echo "<table class='widefat'>";
+		echo "<thead>";
+		echo "<tr>";
+		echo "<th><b>Sl.</b></th>";
+		echo "<th><b>Quiz Name</b></th>";
+		echo "<th><b>Score</b></th>";
+		echo "<th><b>Time Taken</b></th>";
+		echo "<th><b>Played On</b></th>";
+		echo "</tr>";
+		echo "</thead>";
+		echo "<tbody>";
 
-			$count = 0;
-			foreach ($quiz_results as $result) {
-				$count++;
-				$mlw_qmn_results_array = unserialize($result->quiz_results);
+		$count = 0;
+		foreach ($quiz_results as $result) {
+			$count++;
+			$mlw_qmn_results_array = unserialize($result->quiz_results);
 
-				// Calculate hours
-				$mlw_complete_hours = floor($mlw_qmn_results_array[0] / 3600);
-				if ($mlw_complete_hours > 0) {
-					$actual_hour = str_pad($mlw_complete_hours, 2, '0', STR_PAD_LEFT) . 'Hours';
-				} else {
-					$actual_hour = 0;
-				}
-
-				// Calculate minutes
-				$mlw_complete_minutes = floor(($mlw_qmn_results_array[0] % 3600) / 60);
-				if ($mlw_complete_minutes > 0) {
-					$actual_minutes = str_pad($mlw_complete_minutes, 2, '0', STR_PAD_LEFT);
-				} else {
-					$actual_minutes = 0;
-				}
-
-				// Calculate seconds
-				$mlw_complete_seconds = $mlw_qmn_results_array[0] % 60;
-				$actual_seconds = str_pad($mlw_complete_seconds, 2, '0', STR_PAD_LEFT);
-
-				$quiz_system = $result->quiz_system; // 0 = Correct/Incorrect, 1 = Point, 3 = Correct/Incorect and Point
-				$correct_score = $result->correct_score; // Score for Correct/Incorrect
-				$point_score = $result->point_score; // Score for Point
-
-				if (0 == $quiz_system) {
-					$final_score = $correct_score . '%';
-				} elseif (1 == $quiz_system) {
-					$final_score = $point_score;
-				} elseif (3 == $quiz_system) {
-					$final_score = 'Point(' . $point_score . ') | Correct(' . $correct_score . '%)';
-				}
-
-				echo "<tr>";
-				echo "<td>{$count}</td>";
-				echo "<td>{$result->quiz_name}</td>";
-				echo "<td>{$final_score}</td>";
-				echo "<td>{$actual_hour}h {$actual_minutes}m {$actual_seconds}</td>";
-				echo "<td>{$result->time_taken}</td>";
-				echo "</tr>";
+			// Calculate hours
+			$mlw_complete_hours = floor($mlw_qmn_results_array[0] / 3600);
+			if ($mlw_complete_hours > 0) {
+				$actual_hour = str_pad($mlw_complete_hours, 2, '0', STR_PAD_LEFT) . 'Hours';
+			} else {
+				$actual_hour = 0;
 			}
-			echo "</tbody>";
-			echo "</table>";
-		} else {
-			echo "We couldn't found any quiz. Please check our home page to play quiz.";
+
+			// Calculate minutes
+			$mlw_complete_minutes = floor(($mlw_qmn_results_array[0] % 3600) / 60);
+			if ($mlw_complete_minutes > 0) {
+				$actual_minutes = str_pad($mlw_complete_minutes, 2, '0', STR_PAD_LEFT);
+			} else {
+				$actual_minutes = 0;
+			}
+
+			// Calculate seconds
+			$mlw_complete_seconds = $mlw_qmn_results_array[0] % 60;
+			$actual_seconds = str_pad($mlw_complete_seconds, 2, '0', STR_PAD_LEFT);
+
+			$quiz_system = $result->quiz_system; // 0 = Correct/Incorrect, 1 = Point, 3 = Correct/Incorect and Point
+			$correct_score = $result->correct_score; // Score for Correct/Incorrect
+			$point_score = $result->point_score; // Score for Point
+
+			if (0 == $quiz_system) {
+				$final_score = $correct_score . '%';
+			} elseif (1 == $quiz_system) {
+				$final_score = $point_score;
+			} elseif (3 == $quiz_system) {
+				$final_score = 'Point(' . $point_score . ') | Correct(' . $correct_score . '%)';
+			}
+
+			echo "<tr>";
+			echo "<td>{$count}</td>";
+			echo "<td>{$result->quiz_name}</td>";
+			echo "<td>{$final_score}</td>";
+			echo "<td>{$actual_hour}h {$actual_minutes}m {$actual_seconds}</td>";
+			echo "<td>{$result->time_taken}</td>";
+			echo "</tr>";
 		}
+		echo "</tbody>";
+		echo "</table>";
+	} else {
+		echo "We couldn't found any quiz. Please check our home page to play quiz.";
 	}
+	//}
 }
 
 // Change Dashboard Text from admin panel
