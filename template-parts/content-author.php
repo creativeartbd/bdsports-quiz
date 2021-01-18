@@ -31,6 +31,9 @@ $wrap_class     = apply_filters('hestia_filter_single_post_content_classes', 'co
             $table = $wpdb->base_prefix . 'mlw_results';
             $quiz_results = $wpdb->get_results("SELECT * FROM {$table} WHERE user = $user_id AND deleted = 0 ORDER BY result_id DESC ", OBJECT);
 
+            $quiz_played = $wpdb->get_var("SELECT COUNT(DISTINCT user)  FROM {$table}");
+
+
             $first_name = get_user_meta($user_id, 'first_name')[0];
             $last_name = get_user_meta($user_id, 'last_name')[0];
             $description = get_user_meta($user_id, 'description')[0];

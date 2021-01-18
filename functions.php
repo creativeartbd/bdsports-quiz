@@ -259,3 +259,175 @@ function ds_script()
 {
 	wp_enqueue_script('ds-quiz-counter', get_template_directory_uri() . '/assets/js/quiz-counter.js', array(), '1.0.0', true);
 }
+
+add_filter('qmn_begin_shortcode', 'add_register_link', 10, 3);
+function add_register_link($display)
+{
+	$register_link = site_url('/wp-login.php?action=register');
+	$display .= "<p>Don't have account? Please register <a href='$register_link'>here</a>.</p>";
+	return $display;
+}
+
+add_action('show_user_profile', 'show_user_profile_func');
+function show_user_profile_func()
+{
+?>
+	<h2>Play Quiz</h2>
+<?php
+}
+// Remove color option from user profile page
+if (is_admin()) {
+	if (current_user_can('subscriber')) {
+		remove_action("admin_color_scheme_picker", "admin_color_scheme_picker");
+	}
+}
+
+// Adjust dashboard widget
+add_action('wp_dashboard_setup', 'wp_dashboard_setup_func');
+function wp_dashboard_setup_func()
+{
+	if (current_user_can('subscriber')) {
+		remove_meta_box('dashboard_quick_press', 'dashboard', 'side');
+		remove_meta_box('dashboard_recent_drafts', 'dashboard', 'side');
+		remove_meta_box('dashboard_primary',       'dashboard', 'side');      //WordPress.com Blog
+		remove_meta_box('dashboard_secondary',     'dashboard', 'side');      //Other WordPress News
+		remove_meta_box('dashboard_incoming_links', 'dashboard', 'normal');    //Incoming Links
+		remove_meta_box('dashboard_plugins',       'dashboard', 'normal');    //Plugins
+		remove_meta_box('dashboard_activity', 'dashboard', 'normal');
+		remove_meta_box('e-dashboard-overview', 'dashboard', 'normal');
+	}
+}
+
+// Add new dashboard widget
+add_action('wp_dashboard_setup', 'wpdocs_add_dashboard_widgets');
+function wpdocs_add_dashboard_widgets()
+{
+	$user_id = get_current_user_id();
+	wp_add_dashboard_widget('dashboard_widget', 'Your latest Quiz result', 'dashboard_widget_function');
+	wp_add_dashboard_widget('dashboard_quiz_widget', 'All Quiz', 'dashboard_all_quiz_widget', null, null, 'side');
+}
+
+function dashboard_all_quiz_widget($post, $callback_args)
+{
+	global $wpdb;
+	$args = array(
+		'post_type'   => 'qsm_quiz',
+		'sort_order' => 'desc'
+	);
+
+	$get_quiz = get_posts($args);
+	if ($get_quiz) {
+		echo "<table class='widefat'>";
+		echo "<thead>";
+		echo "<tr>";
+		echo "<th><b>Sl.</b></th>";
+		echo "<th><b>Quiz Name</b></th>";
+		echo "<th><b>Play Quiz</b></th>";
+		echo "</tr>";
+		echo "</thead>";
+		echo "<tbody>";
+		$count = 0;
+		foreach ($get_quiz as $quiz) {
+			$count++;
+			$quiz_title = $quiz->post_title;
+			$quiz_name = $quiz->post_name;
+			$quiz_link = site_url() . '/quiz/' . $quiz_name;
+
+			echo "<tr>";
+			echo "<td>{$count}</td>";
+			echo "<td>{$quiz_title}</td>";
+			echo "<td><a href='{$quiz_link}' target='_blank'>Play</a></td>";
+			echo "</tr>";
+		}
+		echo "</tbody>";
+		echo "</table>";
+	}
+}
+
+function dashboard_widget_function($post, $callback_args)
+{
+	if (current_user_can('subscriber')) {
+		global $wpdb;
+		$table = $wpdb->base_prefix . 'mlw_results';
+		$user_id = get_current_user_id();
+		$quiz_results = $wpdb->get_results("SELECT * FROM {$table} WHERE user = $user_id AND deleted = 0 ORDER BY result_id DESC ", OBJECT);
+
+		if ($quiz_results) {
+			echo "<table class='widefat'>";
+			echo "<thead>";
+			echo "<tr>";
+			echo "<th><b>Sl.</b></th>";
+			echo "<th><b>Quiz Name</b></th>";
+			echo "<th><b>Score</b></th>";
+			echo "<th><b>Time Taken</b></th>";
+			echo "<th><b>Played On</b></th>";
+			echo "</tr>";
+			echo "</thead>";
+			echo "<tbody>";
+
+			$count = 0;
+			foreach ($quiz_results as $result) {
+				$count++;
+				$mlw_qmn_results_array = unserialize($result->quiz_results);
+
+				// Calculate hours
+				$mlw_complete_hours = floor($mlw_qmn_results_array[0] / 3600);
+				if ($mlw_complete_hours > 0) {
+					$actual_hour = str_pad($mlw_complete_hours, 2, '0', STR_PAD_LEFT) . 'Hours';
+				} else {
+					$actual_hour = 0;
+				}
+
+				// Calculate minutes
+				$mlw_complete_minutes = floor(($mlw_qmn_results_array[0] % 3600) / 60);
+				if ($mlw_complete_minutes > 0) {
+					$actual_minutes = str_pad($mlw_complete_minutes, 2, '0', STR_PAD_LEFT);
+				} else {
+					$actual_minutes = 0;
+				}
+
+				// Calculate seconds
+				$mlw_complete_seconds = $mlw_qmn_results_array[0] % 60;
+				$actual_seconds = str_pad($mlw_complete_seconds, 2, '0', STR_PAD_LEFT);
+
+				$quiz_system = $result->quiz_system; // 0 = Correct/Incorrect, 1 = Point, 3 = Correct/Incorect and Point
+				$correct_score = $result->correct_score; // Score for Correct/Incorrect
+				$point_score = $result->point_score; // Score for Point
+
+				if (0 == $quiz_system) {
+					$final_score = $correct_score . '%';
+				} elseif (1 == $quiz_system) {
+					$final_score = $point_score;
+				} elseif (3 == $quiz_system) {
+					$final_score = 'Point(' . $point_score . ') | Correct(' . $correct_score . '%)';
+				}
+
+				echo "<tr>";
+				echo "<td>{$count}</td>";
+				echo "<td>{$result->quiz_name}</td>";
+				echo "<td>{$final_score}</td>";
+				echo "<td>{$actual_hour}h {$actual_minutes}m {$actual_seconds}</td>";
+				echo "<td>{$result->time_taken}</td>";
+				echo "</tr>";
+			}
+			echo "</tbody>";
+			echo "</table>";
+		} else {
+			echo "We couldn't found any quiz. Please check our home page to play quiz.";
+		}
+	}
+}
+
+// Change Dashboard Text from admin panel
+add_action('admin_head', 'my_custom_dashboard_name');
+function my_custom_dashboard_name()
+{
+	if (current_user_can('subscriber')) {
+		if ($GLOBALS['title'] != 'Dashboard') {
+			return;
+		}
+		$current_user = wp_get_current_user();
+		$user_nickname = $current_user->data->user_nicename;
+		$GLOBALS['title'] =  __('Welcome ' . ucfirst($user_nickname));
+	}
+}
