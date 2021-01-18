@@ -424,3 +424,12 @@ function my_custom_dashboard_name()
 		$GLOBALS['title'] =  __('Welcome ' . ucfirst($user_nickname));
 	}
 }
+// Replace english number to bangla number
+function make_bangla_number($str)
+{
+	$engNumber = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 0);
+	$bangNumber = array('১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯', '০');
+	$converted = str_replace($engNumber, $bangNumber, $str);
+
+	return $converted;
+}

@@ -33,7 +33,6 @@ $wrap_class     = apply_filters('hestia_filter_single_post_content_classes', 'co
 
             $quiz_played = $wpdb->get_var("SELECT COUNT(DISTINCT user)  FROM {$table}");
 
-
             $first_name = get_user_meta($user_id, 'first_name')[0];
             $last_name = get_user_meta($user_id, 'last_name')[0];
             $description = get_user_meta($user_id, 'description')[0];
