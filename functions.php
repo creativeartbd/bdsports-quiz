@@ -343,7 +343,7 @@ function dashboard_widget_function($post, $callback_args)
 	global $wpdb;
 	$table = $wpdb->base_prefix . 'mlw_results';
 	$user_id = get_current_user_id();
-	$quiz_results = $wpdb->get_results("SELECT * FROM {$table} WHERE user = $user_id AND deleted = 0 ORDER BY result_id DESC ", OBJECT);
+	$quiz_results = $wpdb->get_results("SELECT quiz_results, quiz_system, correct_score, point_score, quiz_name, time_taken FROM {$table} WHERE user = $user_id AND deleted = 0 ORDER BY result_id DESC ", OBJECT);
 
 	if ($quiz_results) {
 		echo "<table class='widefat'>";
