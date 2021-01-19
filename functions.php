@@ -221,7 +221,7 @@ function qsm_after_all_section_func()
 
 	$skip_post_title = site_url() . '/quiz/' . $skip_post_title;
 	echo '<hr/>';
-	echo "<a href='{$skip_post_title}' class='btn ds-btn-danger'>Skip this Quiz</a>&nbsp;";
+	echo "<a href='{$skip_post_title}'>Skip this Quiz</a>&nbsp;";
 }
 
 
