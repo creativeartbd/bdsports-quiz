@@ -263,8 +263,10 @@ function ds_script()
 add_filter('qmn_begin_shortcode', 'add_register_link', 10, 3);
 function add_register_link($display)
 {
-	$register_link = site_url('/wp-login.php?action=register');
-	$display .= "<p>Don't have account? Please register <a href='$register_link'>here</a>.</p>";
+	if (!is_user_logged_in()) {
+		$register_link = site_url('/wp-login.php?action=register');
+		$display .= "<p>Don't have account? Please register <a href='$register_link'>here</a>.</p>";
+	}
 	return $display;
 }
 
