@@ -21,7 +21,7 @@ if (end_time) {
 
         // Output the result in an element with id="demo"
         document.getElementById("quiz-counter").innerHTML =
-            "Time Remaing " +
+            "Time Remaing - " +
             days +
             "d " +
             hours +

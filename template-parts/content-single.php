@@ -48,6 +48,7 @@ $wrap_class     = apply_filters('hestia_filter_single_post_content_classes', 'co
 				echo '</div>';
 
 				//do_action('hestia_after_single_post_article');
+				do_action('quiz_ad_after_single_post_article');
 			}
 
 			echo '</div>';
